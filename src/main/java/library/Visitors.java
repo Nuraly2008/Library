@@ -41,6 +41,10 @@ class FineVisitor implements Visitor<Integer> {
     public Integer visit(EBook ebook) {
         return ebook.overdueDays();
     }
+
+    public Integer visit(AudioBook audiobook) {
+        return audiobook.overdueDays() * 4;
+    }
 }
 
 class InventoryVisitor implements Visitor<Void> {
@@ -91,6 +95,11 @@ class InventoryVisitor implements Visitor<Void> {
 
     public Void visit(EBook ebook) {
         add("EBook");
+        return null;
+    }
+
+    public Void visit(AudioBook audiobook) {
+        add("AudioBook");
         return null;
     }
 }
@@ -165,6 +174,10 @@ class JsonCatalogVisitor implements Visitor<String> {
     public String visit(EBook ebook) {
         return item("ebook", ebook);
     }
+
+    public String visit(AudioBook audiobook) {
+        return item("audiobook", audiobook);
+    }
 }
 
 class OverdueFilterVisitor implements Visitor<List<CatalogItem>> {
@@ -204,6 +217,10 @@ class OverdueFilterVisitor implements Visitor<List<CatalogItem>> {
 
     public List<CatalogItem> visit(EBook ebook) {
         return check(ebook);
+    }
+
+    public List<CatalogItem> visit(AudioBook audiobook) {
+        return check(audiobook);
     }
 }
 

@@ -1,5 +1,4 @@
 
-
 package library;
 
 import java.util.List;
@@ -22,6 +21,7 @@ interface Visitor<R> {
     R visit(Book book);
     R visit(Journal journal);
     R visit(EBook ebook);
+    R visit(AudioBook audiobook);
 }
 
 record Library(String name, List<Section> sections) implements LibraryElement {
@@ -77,3 +77,12 @@ record EBook(String id, String title, int overdueDays, boolean available)
         return visitor.visit(this);
     }
 }
+
+record AudioBook(String id, String title, int overdueDays, boolean available)
+        implements CatalogItem {
+
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visit(this);
+    }
+}
+

@@ -17,9 +17,10 @@ class LibraryTest {
         Book book = new Book("B1", "Java", 3, true);
         Journal journal = new Journal("J1", "Science", 2, false);
         EBook ebook = new EBook("E1", "Clean Code", 0, true);
+        AudioBook audiobook = new AudioBook("A1", "Patterns", 1, false);
 
         Shelf first = new Shelf("Programming", List.of(book, ebook));
-        Shelf second = new Shelf("Media", List.of(journal));
+        Shelf second = new Shelf("Media", List.of(journal, audiobook));
 
         return new Library("City Library", List.of(
                 new Section("Books", List.of(first)),
@@ -29,7 +30,7 @@ class LibraryTest {
 
     @Test
     void calculatesTotalFines() {
-        assertEquals(13, sampleLibrary().accept(new FineVisitor()));
+        assertEquals(17, sampleLibrary().accept(new FineVisitor()));
     }
 
     @Test
@@ -43,10 +44,11 @@ class LibraryTest {
         InventoryVisitor visitor = new InventoryVisitor();
         sampleLibrary().accept(visitor);
 
-        assertEquals(3, visitor.total());
+        assertEquals(4, visitor.total());
         assertEquals(1, visitor.count("Book"));
         assertEquals(1, visitor.count("Journal"));
         assertEquals(1, visitor.count("EBook"));
+        assertEquals(1, visitor.count("AudioBook"));
     }
 
     @Test
@@ -57,7 +59,7 @@ class LibraryTest {
         library.sections().get(0).accept(visitor);
         library.sections().get(1).accept(visitor);
 
-        assertEquals(3, visitor.total());
+        assertEquals(4, visitor.total());
     }
 
     @Test
@@ -237,7 +239,7 @@ class LibraryTest {
         LibrarySimulation simulation = new LibrarySimulation(
                 availability,
                 loans,
-                List.of("B1", "J1", "E1")
+                List.of("B1", "J1", "E1", "A1")
         );
 
         assertTimeoutPreemptively(Duration.ofSeconds(20),
@@ -253,9 +255,24 @@ class LibraryTest {
         List<CatalogItem> items =
                 sampleLibrary().accept(new OverdueFilterVisitor());
 
-        assertEquals(2, items.size());
-        assertEquals(List.of("B1", "J1"),
+        assertEquals(3, items.size());
+        assertEquals(List.of("B1", "J1", "A1"),
                 items.stream().map(CatalogItem::id).toList());
     }
 
+    @Test
+    void handlesAudioBook() {
+        AudioBook audiobook = new AudioBook("A2", "Audio", 2, true);
+
+        assertEquals(8, audiobook.accept(new FineVisitor()));
+
+        InventoryVisitor inventory = new InventoryVisitor();
+        audiobook.accept(inventory);
+
+        assertEquals(1, inventory.count("AudioBook"));
+        assertTrue(audiobook.accept(new JsonCatalogVisitor())
+                .contains("\"type\":\"audiobook\""));
+        assertEquals(List.of(audiobook),
+                audiobook.accept(new OverdueFilterVisitor()));
+    }
 }

@@ -18,9 +18,10 @@ public class Main {
         Book book = new Book("B1", "Java Basics", 3, true);
         Journal journal = new Journal("J1", "Science Journal", 2, false);
         EBook ebook = new EBook("E1", "Clean Code", 0, true);
+        AudioBook audiobook = new AudioBook("A1", "Design Patterns", 1, false);
 
         Shelf firstShelf = new Shelf("Programming", List.of(book, ebook));
-        Shelf secondShelf = new Shelf("Media", List.of(journal));
+        Shelf secondShelf = new Shelf("Media", List.of(journal, audiobook));
 
         Library library = new Library("City Library", List.of(
                 new Section("Books", List.of(firstShelf)),
@@ -38,7 +39,8 @@ public class Main {
         InspectionListener inspection = new InspectionListener(Map.of(
                 "B1", firstShelf,
                 "E1", firstShelf,
-                "J1", secondShelf
+                "J1", secondShelf,
+                "A1", secondShelf
         ));
 
         availability.subscribe(EventType.AVAILABLE, reservations);
@@ -56,7 +58,7 @@ public class Main {
         LibrarySimulation simulation = new LibrarySimulation(
                 availability,
                 loans,
-                List.of("B1", "J1", "E1")
+                List.of("B1", "J1", "E1", "A1")
         );
 
         simulation.run(threads, eventsPerProducer);
@@ -72,7 +74,8 @@ public class Main {
         System.out.println("Statistics updates: " + panel.statisticsUpdates());
         System.out.println("Inventory: " + inventory.total());
         System.out.println("Total fines: " + library.accept(new FineVisitor()));
-        System.out.println("Overdue items: "+ library.accept(new OverdueFilterVisitor()).size());
+        System.out.println("Overdue items: "
+                + library.accept(new OverdueFilterVisitor()).size());
         System.out.println("Catalog: " + library.accept(new JsonCatalogVisitor()));
     }
 }
