@@ -1,6 +1,7 @@
 
 package library;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +10,11 @@ import java.util.StringJoiner;
 class FineVisitor implements Visitor<Integer> {
     private int total(List<? extends LibraryElement> elements) {
         int sum = 0;
+
         for (LibraryElement element : elements) {
             sum += element.accept(this);
         }
+
         return sum;
     }
 
@@ -95,9 +98,11 @@ class InventoryVisitor implements Visitor<Void> {
 class JsonCatalogVisitor implements Visitor<String> {
     private String array(List<? extends LibraryElement> elements) {
         StringJoiner result = new StringJoiner(",", "[", "]");
+
         for (LibraryElement element : elements) {
             result.add(element.accept(this));
         }
+
         return result.toString();
     }
 
@@ -161,3 +166,44 @@ class JsonCatalogVisitor implements Visitor<String> {
         return item("ebook", ebook);
     }
 }
+
+class OverdueFilterVisitor implements Visitor<List<CatalogItem>> {
+    private List<CatalogItem> collect(List<? extends LibraryElement> elements) {
+        List<CatalogItem> result = new ArrayList<>();
+
+        for (LibraryElement element : elements) {
+            result.addAll(element.accept(this));
+        }
+
+        return result;
+    }
+
+    private List<CatalogItem> check(CatalogItem item) {
+        return item.overdueDays() > 0 ? List.of(item) : List.of();
+    }
+
+    public List<CatalogItem> visit(Library library) {
+        return collect(library.sections());
+    }
+
+    public List<CatalogItem> visit(Section section) {
+        return collect(section.shelves());
+    }
+
+    public List<CatalogItem> visit(Shelf shelf) {
+        return collect(shelf.items());
+    }
+
+    public List<CatalogItem> visit(Book book) {
+        return check(book);
+    }
+
+    public List<CatalogItem> visit(Journal journal) {
+        return check(journal);
+    }
+
+    public List<CatalogItem> visit(EBook ebook) {
+        return check(ebook);
+    }
+}
+

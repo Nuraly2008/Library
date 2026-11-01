@@ -247,4 +247,15 @@ class LibraryTest {
         assertEquals(4000, panel.statisticsUpdates());
         assertEquals(4000, panel.lastTotal());
     }
+
+    @Test
+    void findsOverdueItems() {
+        List<CatalogItem> items =
+                sampleLibrary().accept(new OverdueFilterVisitor());
+
+        assertEquals(2, items.size());
+        assertEquals(List.of("B1", "J1"),
+                items.stream().map(CatalogItem::id).toList());
+    }
+
 }

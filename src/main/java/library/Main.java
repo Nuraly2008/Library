@@ -72,6 +72,7 @@ public class Main {
         System.out.println("Statistics updates: " + panel.statisticsUpdates());
         System.out.println("Inventory: " + inventory.total());
         System.out.println("Total fines: " + library.accept(new FineVisitor()));
+        System.out.println("Overdue items: "+ library.accept(new OverdueFilterVisitor()).size());
         System.out.println("Catalog: " + library.accept(new JsonCatalogVisitor()));
     }
 }
